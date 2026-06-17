@@ -22,6 +22,7 @@
 #>
 
 param(
+    [string]$SetInterval,
     [switch]$Status,
     [string]$Toggle,
     [switch]$Test,
@@ -94,6 +95,12 @@ if ($Status) {
         Write-Host "    Pack   : $($cfg.audio.active_pack)  vol=$($cfg.audio.volume)" -ForegroundColor DarkGray
     }
     Write-Status "  Play on tools      " $cfg.audio.play_on_tool
+    Write-Host ""
+    Write-Host "  Alerts:" -ForegroundColor DarkGray
+    Write-Status "  Repeat on attention" $cfg.alerts.repeat_enabled
+    if ($cfg.alerts.repeat_enabled) {
+        Write-Host "    Every: $($cfg.alerts.repeat_interval_seconds)s" -ForegroundColor DarkGray
+    }
     Write-Host ""
     Write-Host "  Notifications:" -ForegroundColor DarkGray
     Write-Status "  Terminal banner    " $cfg.notify.terminal
@@ -201,6 +208,7 @@ if ($Toggle) {
     $cfg = Get-Config
     switch ($Toggle.ToLower()) {
         "audio"         { $cfg.audio.enabled                  = -not $cfg.audio.enabled;                  $label = "Sound pack audio" }
+        "repeat"        { $cfg.alerts.repeat_enabled             = -not $cfg.alerts.repeat_enabled;             $label = "Repeat alert" }
         "play-on-tool"  { $cfg.audio.play_on_tool             = -not $cfg.audio.play_on_tool;             $label = "Audio on tool events" }
         "terminal"      { $cfg.notify.terminal                = -not $cfg.notify.terminal;                $label = "Terminal banner" }
         "toast"         { $cfg.toast.enabled                  = -not $cfg.toast.enabled;                  $label = "Toast popups" }
@@ -214,6 +222,8 @@ if ($Toggle) {
     Save-Config $cfg
     $newVal = switch ($Toggle.ToLower()) {
         "audio"         { $cfg.audio.enabled }
+        "repeat"        { $cfg.alerts.repeat_enabled             = -not $cfg.alerts.repeat_enabled;             $label = "Repeat alert" }
+        "repeat"        { $cfg.alerts.repeat_enabled }
         "play-on-tool"  { $cfg.audio.play_on_tool }
         "terminal"      { $cfg.notify.terminal }
         "toast"         { $cfg.toast.enabled }
@@ -257,6 +267,17 @@ if ($SetVoice) {
     }
     $cfg.voice.name = $SetVoice; Save-Config $cfg
     Write-Host "Voice: $SetVoice" -ForegroundColor Green; exit 0
+}
+
+
+if ($SetInterval) {
+    $n = [int]$SetInterval
+    if ($n -lt 5 -or $n -gt 300) { Write-Host "Interval must be 5-300 seconds." -ForegroundColor Red; exit 1 }
+    $cfg = Get-Config
+    $cfg.alerts.repeat_interval_seconds = $n
+    Save-Config $cfg
+    Write-Host "Repeat interval set to: ${n}s" -ForegroundColor Green
+    exit 0
 }
 
 if ($Test) {

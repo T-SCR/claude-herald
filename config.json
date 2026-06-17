@@ -3,10 +3,15 @@
 
   "audio": {
     "enabled": true,
-    "active_pack": "clean_chimes",
+    "active_pack": "sc_battlecruiser",
     "volume": 0.6,
-    "play_on_tool": false,
-    "_note": "Packs live in sounds/. Switch with: .\\herald.ps1 --set-pack <name>"
+    "play_on_tool": false
+  },
+
+  "alerts": {
+    "repeat_enabled": true,
+    "repeat_interval_seconds": 10,
+    "_note": "Repeat sound every N seconds when Claude needs your attention. Stops when you respond."
   },
 
   "notify": {
@@ -20,8 +25,7 @@
 
   "voice": {
     "enabled": false,
-    "active_profile": "jarvis",
-    "_note": "TTS voice. Off by default. Toggle with: .\\herald.ps1 --toggle voice"
+    "active_profile": "jarvis"
   },
 
   "profiles": {
