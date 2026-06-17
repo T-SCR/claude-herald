@@ -60,5 +60,9 @@
                  "name":  "YourName",
                  "_note":  "mode: 'sir' = formal, 'friendly' = uses name. Toggle: .\\herald.ps1 --toggle tone"
              },
-    "away_mode":  false
+    "away_mode":  false,
+    "orchestrator":  {
+                         "path":  "C:\\Users\\YourName\\tools\\herald-orchestrator",
+                         "enabled":  true
+                     }
 }

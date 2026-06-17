@@ -20,6 +20,23 @@ $config = Get-Content $configPath -Raw | ConvertFrom-Json
 if (-not $config.enabled)       { exit 0 }
 if (-not $config.hooks.on_stop) { exit 0 }
 
+# ── Orchestrator IPC relay ─────────────────────────────────────────────────────
+# If Herald: Orchestrator daemon is running, relay the event there.
+# Orchestrator owns Telegram push + away mode + attention flow.
+function Send-OrchEvent([string]$Evt, [string]$Msg = "") {
+    $orchPath = if ($config.orchestrator) { $config.orchestrator.path } else { "" }
+    if (-not $orchPath -or -not (Test-Path $orchPath)) { return $false }
+    $orchPidFile = Join-Path $orchPath ".orch-pid"
+    if (-not (Test-Path $orchPidFile)) { return $false }
+    $orchPid = (Get-Content $orchPidFile -Raw -ErrorAction SilentlyContinue).Trim()
+    if (-not $orchPid) { return $false }
+    $proc = Get-Process -Id ([int]$orchPid) -ErrorAction SilentlyContinue
+    if (-not $proc) { return $false }
+    $line = [ordered]@{ event = $Evt; message = $Msg; timestamp = (Get-Date -f 'o') } | ConvertTo-Json -Compress
+    Add-Content (Join-Path $orchPath ".orch-events") $line -Encoding UTF8
+    return $true
+}
+
 $lines    = Get-Content $linesPath -Raw | ConvertFrom-Json
 $awayMode = [bool]$config.away_mode
 $name     = if ($config.tone.mode -eq "sir") { "sir" } else { $config.tone.name }
@@ -73,6 +90,14 @@ $pool         = $lines.stop.$lineKey
 $voiceLine    = $pool[(Get-Random -Maximum $pool.Count)]
 
 $attentionEvents = @("permission", "question", "input")
+
+# Relay to Orchestrator if running — it handles push + attention + away mode
+$relayed = Send-OrchEvent $stopReason $lastMessage
+
+# Always play local audio/banner (Sentinel's job regardless of Orchestrator state)
+& $notifyScript -Event $stopReason -Message $voiceLine
+
+if ($relayed) { exit 0 }  # Orchestrator takes it from here
 
 if ($awayMode) {
     # AWAY MODE: push Claude's actual response to Telegram — no local sound/banner.

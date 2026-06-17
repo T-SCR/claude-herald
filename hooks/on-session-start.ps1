@@ -41,4 +41,17 @@ if ($config.audio.enabled) {
     }
 }
 
+# Relay session_start to Orchestrator if running
+if (Test-Path $configPath) {
+    $cfg = Get-Content $configPath -Raw | ConvertFrom-Json
+    $orchPath = if ($cfg.orchestrator) { $cfg.orchestrator.path } else { "" }
+    if ($orchPath -and (Test-Path $orchPath)) {
+        $orchPid = (Get-Content (Join-Path $orchPath ".orch-pid") -Raw -ErrorAction SilentlyContinue).Trim()
+        if ($orchPid -and (Get-Process -Id ([int]$orchPid) -ErrorAction SilentlyContinue)) {
+            '{"event":"session_start","message":"","timestamp":"' + (Get-Date -f 'o') + '"}' |
+                Add-Content (Join-Path $orchPath ".orch-events") -Encoding UTF8
+        }
+    }
+}
+
 # Pass through - do not block session
