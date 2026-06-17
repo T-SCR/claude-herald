@@ -47,7 +47,8 @@
                    "ntfy_server":  "https://ntfy.sh",
                    "ntfy_topic":  "sharat-claude",
                    "ntfy_token":  "",
-                   "push_on_complete":  false
+                   "push_on_complete":  false,
+                   "reply_topic":  "sharat-claude-in"
                },
     "hooks":  {
                   "on_stop":  true,
