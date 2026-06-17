@@ -1,12 +1,21 @@
 ﻿{
-  "_comment": "claude-herald config - edit directly or use: .\\herald.ps1 --help",
-
   "enabled": true,
 
-  "voice": {
+  "notify": {
+    "terminal": true,
+    "_note": "Print styled banner directly in the Claude Code terminal output"
+  },
+
+  "toast": {
     "enabled": true,
+    "show_tool_events": false,
+    "_note": "Windows toast popups. show_tool_events: toast on every Write/Edit/Bash"
+  },
+
+  "voice": {
+    "enabled": false,
     "active_profile": "jarvis",
-    "_note_profiles": "Switch profiles with: .\\herald.ps1 --set-profile <name>"
+    "_note": "Disabled by default. Toggle with: .\\herald.ps1 --toggle voice"
   },
 
   "profiles": {
@@ -14,7 +23,7 @@
       "name": "Microsoft David Desktop",
       "rate": -4,
       "volume": 95,
-      "description": "Slow, deliberate, authoritative - modelled on J.A.R.V.I.S."
+      "description": "Slow, deliberate, authoritative"
     },
     "default": {
       "name": "Microsoft David Desktop",
@@ -30,19 +39,13 @@
     }
   },
 
-  "toast": {
-    "enabled": true,
-    "show_tool_events": false,
-    "_note": "show_tool_events: true = toast for every Write/Edit/Bash. Can get noisy."
-  },
-
   "mobile": {
     "enabled": false,
     "ntfy_server": "https://ntfy.sh",
     "ntfy_topic": "",
     "ntfy_token": "",
     "push_on_complete": false,
-    "_note": "Set ntfy_topic to your unique topic. push_on_complete: push even on task-done."
+    "_note": "Phone push via ntfy.sh. Set ntfy_topic then run --toggle mobile"
   },
 
   "hooks": {
@@ -51,7 +54,6 @@
   },
 
   "announcements": {
-    "tool_details": true,
-    "_note": "tool_details: true = 'File written - Skills.md' vs just 'File written'"
+    "tool_details": true
   }
 }
