@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Claude Code PostToolUse hook handler.
     Fires after each tool call. Announces significant tool events.
@@ -14,8 +14,8 @@ $toastScript = Join-Path $root "engine\toast.ps1"
 if (-not (Test-Path $configPath)) { exit 0 }
 
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
-if (-not $config.enabled)              { exit 0 }
-if (-not $config.hooks.on_tool_use)    { exit 0 }
+if (-not $config.enabled)           { exit 0 }
+if (-not $config.hooks.on_tool_use) { exit 0 }
 
 $lines = Get-Content $linesPath -Raw | ConvertFrom-Json
 
@@ -30,7 +30,7 @@ if (-not $payload) { exit 0 }
 
 $toolName = $payload.tool_name
 
-# Tools to stay silent on — too frequent, not interesting
+# Tools to stay silent on - too frequent, not interesting
 $silentTools = @("Read", "Glob", "Grep", "mcp__qmd__query", "mcp__qmd__get",
                  "mcp__qmd__multi_get", "ToolSearch", "advisor")
 
@@ -46,7 +46,7 @@ switch -Regex ($toolName) {
         $fileName  = if ($filePath) { Split-Path $filePath -Leaf } else { "file" }
         $pool      = $lines.tool.Write
         $base      = $pool[(Get-Random -Maximum $pool.Count)]
-        $message   = if ($config.announcements.tool_details) { "$base — $fileName" } else { $base }
+        $message   = if ($config.announcements.tool_details) { "$base - $fileName" } else { $base }
         $toastBody = "Written: $fileName"
     }
     "^Edit$" {
@@ -54,7 +54,7 @@ switch -Regex ($toolName) {
         $fileName  = if ($filePath) { Split-Path $filePath -Leaf } else { "file" }
         $pool      = $lines.tool.Edit
         $base      = $pool[(Get-Random -Maximum $pool.Count)]
-        $message   = if ($config.announcements.tool_details) { "$base — $fileName" } else { $base }
+        $message   = if ($config.announcements.tool_details) { "$base - $fileName" } else { $base }
         $toastBody = "Edited: $fileName"
     }
     "^Bash$" {
@@ -62,7 +62,7 @@ switch -Regex ($toolName) {
         $preview   = if ($cmd -and $cmd.Length -gt 50) { $cmd.Substring(0, 47) + "..." } else { $cmd }
         $pool      = $lines.tool.Bash
         $base      = $pool[(Get-Random -Maximum $pool.Count)]
-        $message   = if ($config.announcements.tool_details -and $preview) { "$base — $preview" } else { $base }
+        $message   = if ($config.announcements.tool_details -and $preview) { "$base - $preview" } else { $base }
         $toastBody = "Command: $preview"
     }
     "^WebFetch$" {
@@ -86,7 +86,7 @@ switch -Regex ($toolName) {
         $toastBody = "Task list updated"
     }
     default {
-        # Unknown tool — announce briefly without details
+        # Unknown tool - announce briefly without details
         $message   = "Operation complete."
         $toastBody = "Tool: $toolName"
     }
@@ -97,5 +97,5 @@ if ($message) {
 }
 
 if ($toastBody -and $config.toast.show_tool_events) {
-    & $toastScript -Title "Claude — $toolName" -Body $toastBody
+    & $toastScript -Title "Claude - $toolName" -Body $toastBody
 }
